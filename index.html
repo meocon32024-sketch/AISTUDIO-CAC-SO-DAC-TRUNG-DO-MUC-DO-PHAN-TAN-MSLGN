@@ -1,0 +1,1760 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Học Toán Cùng Thầy Thắng - Các Số Đặc Trưng Đo Mức Độ Phân Tán</title>
+    <meta name="description" content="Ứng dụng giáo dục giải bài toán mẫu số liệu ghép nhóm theo SGK Toán 12 Kết nối tri thức: tính số trung bình, phương sai, độ lệch chuẩn, tứ phân vị, khoảng biến thiên, biểu đồ tần số và sơ đồ hộp." />
+    <meta property="og:title" content="Học Toán Cùng Thầy Thắng - Các Số Đặc Trưng Đo Mức Độ Phân Tán" />
+    <meta property="og:description" content="Ứng dụng giáo dục giải bài toán mẫu số liệu ghép nhóm theo SGK Toán 12 Kết nối tri thức: tính số trung bình, phương sai, độ lệch chuẩn, tứ phân vị, khoảng biến thiên, biểu đồ tần số và sơ đồ hộp." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts: Inter & JetBrains Mono cho hiển thị toán học và giao diện sư phạm -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS qua CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            },
+            colors: {
+              edu: {
+                50: '#eff6ff',
+                100: '#dbeafe',
+                200: '#bfdbfe',
+                300: '#93c5fd',
+                400: '#60a5fa',
+                500: '#3b82f6',
+                600: '#2563eb',
+                700: '#1d4ed8',
+                800: '#1e40af',
+                900: '#1e3a8a',
+                950: '#172554',
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Chart.js để vẽ biểu đồ hình cột (Histogram) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <!-- Marked.js để render Markdown lời giải -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+
+    <!-- Cấu hình MathJax 3 để render công thức LaTeX đẹp mắt -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          packages: {'[+]': ['noerrors']}
+        },
+        options: {
+          ignoreHtmlClass: 'tex2jax_ignore',
+          processHtmlClass: 'tex2jax_process'
+        },
+        startup: {
+          pageReady: () => {
+            return MathJax.startup.defaultPageReady();
+          }
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+      /* Kiểu dáng in ấn đề tài và xuất file lời giải */
+      @media print {
+        header, .no-print {
+          display: none !important;
+        }
+        body {
+          background-color: white !important;
+          color: black !important;
+        }
+        #solutionCard {
+          box-shadow: none !important;
+          border: none !important;
+        }
+      }
+      /* Tùy chỉnh thanh cuộn */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      .math-table td, .math-table th {
+        padding: 0.6rem 0.85rem;
+        border: 1px solid #e2e8f0;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-edu-200 selection:text-edu-900">
+
+    <!-- ================= HEADER: BẢNG HIỆU SƯ PHẠM ================= -->
+    <header class="bg-gradient-to-r from-edu-900 via-edu-800 to-indigo-900 text-white shadow-lg sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-white shadow-inner font-bold text-xl">
+            <svg class="w-6 h-6 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-white uppercase">
+                Học Toán Cùng Thầy Thắng
+              </h1>
+              <span class="text-[11px] font-medium bg-sky-500/30 text-sky-200 border border-sky-400/30 px-2 py-0.5 rounded">
+                SGK Toán 12 Kết Nối Tri Thức
+              </span>
+            </div>
+            <p class="text-xs text-sky-200/90 font-medium">
+              Chuyên đề: Các Số Đặc Trưng Đo Mức Độ Phân Tán Của Mẫu Số Liệu Ghép Nhóm
+            </p>
+          </div>
+        </div>
+
+        <!-- Các công cụ nhanh trên Header -->
+        <div class="flex items-center gap-2.5">
+          <button id="btnQuickSample" class="flex items-center gap-1.5 text-xs bg-sky-500 hover:bg-sky-600 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>Bài mẫu SGK</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= NỘI DUNG CHÍNH (MAIN CONTAINER) ================= -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
+      
+      <!-- LƯỚI 2 CỘT: Cột trái (Nhập liệu & Điều khiển), Cột phải (Lời giải & Đồ thị) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- ================= CỘT TRÁI (5 CỘT TRÊN DESKTOP): NHẬP LIỆU ================= -->
+        <div class="lg:col-span-5 space-y-5">
+
+          <!-- THẺ NHẬP ĐỀ BÀI ĐA PHƯƠNG THỨC -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-edu-600"></div>
+                <h2 class="font-bold text-slate-800 text-sm sm:text-base">1. Nhập Đề Bài Đa Phương Thức</h2>
+              </div>
+              <span class="text-xs text-slate-500">4 cách nhập linh hoạt</span>
+            </div>
+
+            <!-- TAB NAVIGATION (4 phương thức) -->
+            <div class="flex border-b border-slate-200 bg-slate-100/60 p-1 gap-1 text-xs font-semibold text-slate-600">
+              <button data-tab="tab-direct" class="tab-btn flex-1 py-2 px-2 text-center rounded-lg transition-all bg-white text-edu-800 shadow-sm font-bold flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>Bảng Trực Tiếp</span>
+              </button>
+              <button data-tab="tab-paste" class="tab-btn flex-1 py-2 px-2 text-center rounded-lg transition-all hover:text-edu-700 flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <span>Dán Ảnh (Paste)</span>
+              </button>
+              <button data-tab="tab-upload" class="tab-btn flex-1 py-2 px-2 text-center rounded-lg transition-all hover:text-edu-700 flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                <span>Tải Ảnh File</span>
+              </button>
+              <button data-tab="tab-text" class="tab-btn flex-1 py-2 px-2 text-center rounded-lg transition-all hover:text-edu-700 flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Copy & Paste Text</span>
+              </button>
+            </div>
+
+            <!-- ================= TAB 1: BẢNG NHẬP TRỰC TIẾP ================= -->
+            <div id="tab-direct" class="tab-content p-4 space-y-3">
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                <span>Nhập các nhóm $[a_i; a_{i+1})$ và tần số tương ứng $m_i$:</span>
+                <span id="sampleSummaryBadge" class="font-semibold text-edu-700 bg-edu-50 px-2 py-0.5 rounded border border-edu-200">
+                  Cỡ mẫu n = <strong id="totalSampleSize" class="text-edu-900">40</strong>
+                </span>
+              </div>
+
+              <!-- BẢNG ĐỘNG (DYNAMIC TABLE) -->
+              <div class="overflow-x-auto max-h-72 border border-slate-200 rounded-xl">
+                <table id="dynamicTable" class="w-full text-left text-xs border-collapse">
+                  <thead class="bg-slate-100 text-slate-700 font-semibold sticky top-0 border-b border-slate-200">
+                    <tr>
+                      <th class="py-2.5 px-3 w-12 text-center">STT</th>
+                      <th class="py-2.5 px-3">Khoảng $[a_i; a_{i+1})$</th>
+                      <th class="py-2.5 px-3 w-28 text-center">Tần số $m_i$</th>
+                      <th class="py-2.5 px-2 w-12 text-center">Xóa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="groupTableBody" class="divide-y divide-slate-100 bg-white">
+                    <!-- Các hàng sẽ được tạo bằng Javascript -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- HÀNG NÚT THAO TÁC BẢNG -->
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button id="btnAddRow" type="button" class="flex items-center gap-1.5 text-xs bg-edu-50 hover:bg-edu-100 text-edu-700 font-semibold px-3 py-2 rounded-lg border border-edu-200 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  <span>Thêm nhóm kế tiếp</span>
+                </button>
+                <button id="btnClearRows" type="button" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium px-2.5 py-2 rounded-lg border border-rose-200 transition-colors">
+                  Xóa hết
+                </button>
+                <div class="flex-1"></div>
+                <!-- Dropdown chọn nhanh ví dụ SGK -->
+                <select id="selectSamplePreset" class="text-xs border border-slate-300 rounded-lg px-2.5 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-edu-500">
+                  <option value="sgk1">Ví dụ 1: Điểm kiểm tra Toán 12 (n = 40)</option>
+                  <option value="sgk2">Ví dụ 2: Thời gian chạy 100m (n = 30)</option>
+                  <option value="sgk3">Ví dụ 3: Thu nhập tháng công nhân (n = 50, có ngoại lệ)</option>
+                  <option value="sgk4">Ví dụ 4: Tuổi thọ bóng đèn điện (n = 100)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- ================= TAB 2: CHỤP VÀ DÁN ẢNH (HỖ TRỢ 2 ẢNH) ================= -->
+            <div id="tab-paste" class="tab-content p-4 space-y-3.5 hidden">
+              <!-- Hàng tiêu đề & Trạng thái dán ảnh -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-bold text-slate-700">Dán ảnh từ Clipboard</span>
+                  <span id="pastedCountBadge" class="text-[11px] font-semibold bg-edu-100 text-edu-800 px-2 py-0.5 rounded-full border border-edu-200">0/2 ảnh</span>
+                </div>
+                <button type="button" id="btnClearAllPasted" class="hidden text-xs text-rose-600 hover:text-rose-800 font-semibold transition-colors">
+                  Xóa cả 2 ảnh
+                </button>
+              </div>
+
+              <!-- Hướng dẫn nhanh cho người dùng -->
+              <div class="text-[11px] text-slate-600 bg-sky-50/70 border border-sky-200 rounded-lg p-2.5 flex items-start gap-2">
+                <span class="text-edu-600 font-bold text-xs mt-0.5">📋</span>
+                <div class="leading-relaxed">
+                  Nhấn <kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded text-slate-700 font-mono shadow-xs font-bold">Ctrl + V</kbd> lần 1 để dán <strong>Ảnh 1</strong>. Nhấn <kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded text-slate-700 font-mono shadow-xs font-bold">Ctrl + V</kbd> lần 2 để dán tiếp <strong>Ảnh 2</strong> (hoặc bấm trực tiếp vào ô để chọn vị trí dán).
+                </div>
+              </div>
+
+              <!-- LƯỚI 2 Ô DÁN ẢNH (SLOT 1 & SLOT 2) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- KHUNG DÁN ẢNH 1 -->
+                <div id="pasteSlot1" data-slot="0" class="slot-card border-2 border-dashed border-edu-400 bg-edu-50/50 rounded-xl p-2.5 flex flex-col items-center justify-center min-h-[160px] text-center relative transition-all cursor-pointer group">
+                  <div id="slot1Empty" class="space-y-1 py-4">
+                    <div class="w-9 h-9 mx-auto rounded-lg bg-white shadow-xs border border-edu-200 flex items-center justify-center text-edu-700 font-bold text-sm group-hover:scale-105 transition-transform">
+                      1
+                    </div>
+                    <p class="text-xs font-bold text-edu-950">Ảnh 1 (Bắt buộc)</p>
+                    <p class="text-[11px] text-slate-500">Bấm <kbd class="px-1 py-0.5 bg-white rounded border border-slate-300 text-slate-700 font-mono">Ctrl + V</kbd></p>
+                  </div>
+                  <div id="slot1Filled" class="hidden w-full h-full flex flex-col justify-between space-y-1.5">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-700 px-1">
+                      <span class="flex items-center gap-1 text-edu-800">
+                        <span class="w-4 h-4 rounded-full bg-edu-700 text-white text-[10px] flex items-center justify-center">1</span>
+                        Ảnh 1
+                      </span>
+                      <button type="button" id="btnRemoveSlot1" class="text-rose-600 hover:text-rose-800 text-[11px] font-semibold p-0.5">Bỏ ảnh 1</button>
+                    </div>
+                    <div class="h-28 w-full rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden p-1">
+                      <img id="imgSlot1" src="" alt="Ảnh 1" class="max-h-full max-w-full object-contain" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- KHUNG DÁN ẢNH 2 -->
+                <div id="pasteSlot2" data-slot="1" class="slot-card border-2 border-dashed border-slate-300 hover:border-edu-500 bg-slate-50/60 rounded-xl p-2.5 flex flex-col items-center justify-center min-h-[160px] text-center relative transition-all cursor-pointer group">
+                  <div id="slot2Empty" class="space-y-1 py-4">
+                    <div class="w-9 h-9 mx-auto rounded-lg bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm group-hover:scale-105 transition-transform">
+                      2
+                    </div>
+                    <p class="text-xs font-bold text-slate-700">Ảnh 2 (Tùy chọn)</p>
+                    <p class="text-[11px] text-slate-400">Bấm <kbd class="px-1 py-0.5 bg-white rounded border border-slate-300 text-slate-700 font-mono">Ctrl + V</kbd></p>
+                  </div>
+                  <div id="slot2Filled" class="hidden w-full h-full flex flex-col justify-between space-y-1.5">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-700 px-1">
+                      <span class="flex items-center gap-1 text-edu-800">
+                        <span class="w-4 h-4 rounded-full bg-edu-700 text-white text-[10px] flex items-center justify-center">2</span>
+                        Ảnh 2
+                      </span>
+                      <button type="button" id="btnRemoveSlot2" class="text-rose-600 hover:text-rose-800 text-[11px] font-semibold p-0.5">Bỏ ảnh 2</button>
+                    </div>
+                    <div class="h-28 w-full rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden p-1">
+                      <img id="imgSlot2" src="" alt="Ảnh 2" class="max-h-full max-w-full object-contain" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- NÚT GỌI AI OCR CHO CÁC ẢNH ĐÃ DÁN -->
+              <button id="btnOcrPastedImg" disabled class="w-full py-2.5 bg-edu-600 hover:bg-edu-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-all">
+                <svg class="w-4 h-4 text-sky-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span id="btnOcrPastedText">Dán ít nhất 1 ảnh để trích xuất</span>
+              </button>
+            </div>
+
+            <!-- ================= TAB 3: TẢI ẢNH FILE (UPLOAD) ================= -->
+            <div id="tab-upload" class="tab-content p-4 space-y-3 hidden">
+              <div class="border-2 border-dashed border-slate-300 hover:border-edu-500 rounded-xl p-6 text-center transition-colors">
+                <input type="file" id="imageFileInput" accept="image/*" class="hidden" />
+                <label for="imageFileInput" class="cursor-pointer block space-y-2">
+                  <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                  </div>
+                  <p class="text-xs font-semibold text-slate-700">Bấm để chọn file ảnh từ máy tính / điện thoại</p>
+                  <p class="text-[11px] text-slate-400">Định dạng JPG, PNG, WEBP (tối đa 10MB)</p>
+                </label>
+              </div>
+
+              <!-- Preview ảnh upload -->
+              <div id="uploadPreviewContainer" class="hidden space-y-2 border border-slate-200 rounded-xl p-3 bg-slate-50">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-slate-700" id="uploadFileName">Ảnh đề bài tải lên:</span>
+                  <button id="btnRemoveUploadedImg" class="text-xs text-rose-600 hover:text-rose-700 font-medium">Bỏ ảnh</button>
+                </div>
+                <div class="max-h-52 overflow-hidden rounded-lg border border-slate-200 flex justify-center bg-white">
+                  <img id="uploadedImgElement" src="" alt="Ảnh đề bài tải lên" class="object-contain max-h-52 w-auto" />
+                </div>
+                <button id="btnOcrUploadedImg" class="w-full py-2.5 bg-edu-600 hover:bg-edu-700 text-white rounded-lg text-xs font-bold shadow flex items-center justify-center gap-1.5 transition-colors">
+                  <svg class="w-4 h-4 text-sky-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  <span>Dùng AI Trích Xuất Vào Bảng Tính</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ================= TAB 4: COPY & PASTE TEXT ================= -->
+            <div id="tab-text" class="tab-content p-4 space-y-3 hidden">
+              <div class="space-y-1.5">
+                <label for="rawTextInput" class="text-xs font-semibold text-slate-700 block">
+                  Dán nội dung bảng số liệu dạng văn bản (Excel, Word hoặc gõ tay):
+                </label>
+                <textarea id="rawTextInput" rows="6" placeholder="[10; 20): 5&#10;[20; 30): 12&#10;[30; 40): 18&#10;[40; 50): 10&#10;[50; 60): 5" class="w-full text-xs font-mono p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-edu-500 focus:outline-none bg-slate-50/50"></textarea>
+                <p class="text-[11px] text-slate-500">
+                  Hỗ trợ định dạng $[a; b): m$ hoặc copy 2 cột từ Excel/Word dán vào.
+                </p>
+              </div>
+              <button id="btnParseText" type="button" class="w-full py-2.5 bg-edu-700 hover:bg-edu-800 text-white font-bold rounded-lg text-xs shadow transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                <span>Chuyển Thành Bảng Dữ Liệu</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- ================= KHU VỰC NÚT ĐIỀU KHIỂN ================= -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 space-y-3">
+            <div class="flex items-center gap-2 pb-1 border-b border-slate-100">
+              <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+              <h3 class="font-bold text-slate-800 text-sm">2. Khối Lệnh Điều Khiển</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <!-- Nút 1: Xuất đồ thị hình cột -->
+              <button id="btnActionHistogram" class="py-2.5 px-3 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold rounded-xl text-xs shadow-sm hover:shadow transition-all flex flex-col items-center justify-center gap-1 group">
+                <svg class="w-5 h-5 text-sky-200 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span>Xuất đồ thị hình cột</span>
+              </button>
+
+              <!-- Nút 2: Mô phỏng tứ phân vị -->
+              <button id="btnActionBoxPlot" class="py-2.5 px-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-xl text-xs shadow-sm hover:shadow transition-all flex flex-col items-center justify-center gap-1 group">
+                <svg class="w-5 h-5 text-indigo-200 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                </svg>
+                <span>Mô phỏng tứ phân vị</span>
+              </button>
+
+              <!-- Nút 3: Xuất lời giải (MD) -->
+              <button id="btnActionSolutionMD" class="py-2.5 px-3 bg-gradient-to-r from-edu-700 to-edu-900 hover:from-edu-800 hover:to-edu-950 text-white font-bold rounded-xl text-xs shadow-sm hover:shadow transition-all flex flex-col items-center justify-center gap-1 group">
+                <svg class="w-5 h-5 text-emerald-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>Xuất lời giải (MD)</span>
+              </button>
+            </div>
+
+            <!-- Tóm tắt số liệu nhanh (Mini Quick Stats) -->
+            <div id="quickMetricsPanel" class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <span class="text-slate-400 block text-[11px]">Trung bình $\overline{x}$</span>
+                <span id="statMean" class="font-bold text-slate-800 text-sm">-</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <span class="text-slate-400 block text-[11px]">Khoảng biến thiên $R$</span>
+                <span id="statRange" class="font-bold text-slate-800 text-sm">-</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <span class="text-slate-400 block text-[11px]">Khoảng TPV $\Delta_Q$</span>
+                <span id="statIQR" class="font-bold text-slate-800 text-sm">-</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <span class="text-slate-400 block text-[11px]">Độ lệch chuẩn $s$</span>
+                <span id="statStdDev" class="font-bold text-slate-800 text-sm">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- LỜI NHẮC CỦA THẦY THẮNG (TIPS SƯ PHẠM) -->
+          <div class="bg-sky-50/80 rounded-2xl border border-sky-200 p-4 text-xs space-y-2">
+            <div class="flex items-center gap-2 text-edu-900 font-bold">
+              <span class="text-base">👨‍🏫</span>
+              <span>Ghi nhớ từ Thầy Thắng:</span>
+            </div>
+            <ul class="text-slate-700 space-y-1.5 list-disc list-inside">
+              <li>Mỗi nhóm $[a_i; a_{i+1})$ có giá trị đại diện là trung điểm: $x_i = \frac{a_i + a_{i+1}}{2}$.</li>
+              <li>Tứ phân vị $Q_1$ dựa vào $\frac{n}{4}$, $Q_2$ (Trung vị) dựa vào $\frac{n}{2}$, $Q_3$ dựa vào $\frac{3n}{4}$.</li>
+              <li>Khoảng tứ phân vị $\Delta_Q = Q_3 - Q_1$ không bị ảnh hưởng bởi các giá trị bất thường.</li>
+              <li>Phương sai $s^2$ và độ lệch chuẩn $s$ càng nhỏ thì mẫu số liệu càng đồng đều.</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- ================= CỘT PHẢI (7 CỘT TRÊN DESKTOP): KẾT QUẢ & LỜI GIẢI ================= -->
+        <div class="lg:col-span-7 space-y-5">
+
+          <!-- KHUNG BIỂU DIỄN ĐỒ THỊ (HISTOGRAM & BOX PLOT) -->
+          <div id="visualDisplayCard" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 space-y-4">
+            
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
+                <h3 id="visualTitle" class="font-bold text-slate-800 text-sm sm:text-base">Trực Quan Hóa Mẫu Số Liệu</h3>
+              </div>
+              
+              <!-- Tab chuyển chế độ xem biểu đồ -->
+              <div class="flex items-center bg-slate-100 p-1 rounded-lg gap-1 text-xs">
+                <button id="btnTabChartHist" class="px-2.5 py-1 rounded-md font-semibold transition-all bg-white text-edu-800 shadow-sm">
+                  Biểu Đồ Cột (Tần số)
+                </button>
+                <button id="btnTabChartBox" class="px-2.5 py-1 rounded-md font-semibold text-slate-600 hover:text-slate-900 transition-all">
+                  Sơ Đồ Hộp (Box Plot & Trục số)
+                </button>
+              </div>
+            </div>
+
+            <!-- VÙNG 1: BIỂU ĐỒ HÌNH CỘT (CHART.JS HISTOGRAM) -->
+            <div id="histogramContainer" class="w-full h-72 sm:h-80 relative">
+              <canvas id="histogramCanvas"></canvas>
+            </div>
+
+            <!-- VÙNG 2: MÔ PHỎNG TỨ PHÂN VỊ TRÊN TRỤC SỐ (CANVAS BOX PLOT) -->
+            <div id="boxplotContainer" class="w-full hidden space-y-3">
+              <div class="relative bg-slate-50/70 border border-slate-200 rounded-xl p-3">
+                <canvas id="boxplotCanvas" class="w-full h-64 sm:h-72 block"></canvas>
+              </div>
+              <div class="text-xs text-slate-600 bg-amber-50/70 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
+                <span class="text-amber-600 font-bold text-sm">💡</span>
+                <div>
+                  <strong class="text-amber-900">Giải thích sơ đồ hộp:</strong>
+                  Hộp chữ nhật chứa $50\%$ số liệu trung tâm (từ $Q_1$ đến $Q_3$). Vạch đậm bên trong là trung vị $Q_2$. Hai râu mở rộng tới các mốc Min và Max. Hai đường nét đứt màu đỏ là ranh giới nhận diện giá trị bất thường: $[Q_1 - 1.5\Delta_Q; Q_3 + 1.5\Delta_Q]$.
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- KHUNG XUẤT LỜI GIẢI CHI TIẾT (MARKDOWN + LATEX THEO CHUẨN SGK KNTT 12) -->
+          <div id="solutionCard" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/80 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-edu-700"></div>
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base">
+                  Lời Giải Chi Tiết (Chuẩn SGK Toán 12 KNTT)
+                </h3>
+              </div>
+              <div class="flex items-center gap-1.5 no-print">
+                <button id="btnCopyMarkdown" class="flex items-center gap-1 text-xs bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-1.5 rounded-lg transition-colors font-medium shadow-sm">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  <span id="copyBtnText">Sao chép MD</span>
+                </button>
+                <button id="btnDownloadMd" class="flex items-center gap-1 text-xs bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-1.5 rounded-lg transition-colors font-medium shadow-sm">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <span>Tải .md</span>
+                </button>
+                <button id="btnPrintSolution" class="flex items-center gap-1 text-xs bg-edu-50 hover:bg-edu-100 text-edu-800 border border-edu-300 px-2.5 py-1.5 rounded-lg transition-colors font-medium shadow-sm">
+                  <svg class="w-3.5 h-3.5 text-edu-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                  <span>In / PDF</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- NỘI DUNG LỜI GIẢI RENDER TỰ ĐỘNG -->
+            <div id="solutionRenderedArea" class="p-5 sm:p-7 leading-relaxed space-y-4 text-slate-800 text-sm overflow-x-auto">
+              <!-- Nội dung lời giải HTML/MathJax sẽ được đưa vào đây -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-5 text-center text-xs text-slate-500 no-print">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p>
+          © 2026 <strong>Học Toán Cùng Thầy Thắng</strong> — Chương trình GDPT 2018 (SGK Toán 12 Kết Nối Tri Thức Với Cuộc Sống).
+        </p>
+        <p class="text-slate-400">
+          Tích hợp Chart.js, MathJax 3, Marked & Gemini AI OCR API.
+        </p>
+      </div>
+    </footer>
+
+    <!-- ================= JAVASCRIPT: LOGIC SƯ PHẠM VÀ TÍNH TOÁN ================= -->
+    <script>
+      /**
+       * =========================================================================
+       * HỌC TOÁN CÙNG THẦY THẮNG - TOÁN 12 KẾT NỐI TRI THỨC VỚI CUỘC SỐNG
+       * CHƯƠNG III: CÁC SỐ ĐẶC TRƯNG ĐO MỨC ĐỘ PHÂN TÁN CỦA MẪU SỐ LIỆU GHÉP NHÓM
+       * =========================================================================
+       */
+
+      // -------------------------------------------------------------------------
+      // KHỐI 1: CÁC DỮ LIỆU MẪU CHUẨN SGK KẾT NỐI TRI THỨC 12
+      // -------------------------------------------------------------------------
+      const SAMPLE_DATASETS = {
+        // Ví dụ 1: Điểm kiểm tra Toán (SGK Kết nối tri thức 12 - Chương III)
+        sgk1: [
+          { start: 0, end: 2, freq: 2 },
+          { start: 2, end: 4, freq: 6 },
+          { start: 4, end: 6, freq: 14 },
+          { start: 6, end: 8, freq: 12 },
+          { start: 8, end: 10, freq: 6 }
+        ],
+        // Ví dụ 2: Thời gian chạy 100 mét (giây) của học sinh nam (n = 30)
+        sgk2: [
+          { start: 12.0, end: 12.5, freq: 3 },
+          { start: 12.5, end: 13.0, freq: 7 },
+          { start: 13.0, end: 13.5, freq: 12 },
+          { start: 13.5, end: 14.0, freq: 6 },
+          { start: 14.0, end: 14.5, freq: 2 }
+        ],
+        // Ví dụ 3: Thu nhập tháng (triệu đồng) của nhân viên công ty (có ngoại lệ)
+        sgk3: [
+          { start: 5, end: 10, freq: 8 },
+          { start: 10, end: 15, freq: 22 },
+          { start: 15, end: 20, freq: 14 },
+          { start: 20, end: 25, freq: 4 },
+          { start: 45, end: 50, freq: 2 } // Nhóm lương cao đột biến (ngoại lệ)
+        ],
+        // Ví dụ 4: Tuổi thọ bóng đèn điện (nghìn giờ) (n = 100)
+        sgk4: [
+          { start: 1.0, end: 1.2, freq: 10 },
+          { start: 1.2, end: 1.4, freq: 25 },
+          { start: 1.4, end: 1.6, freq: 38 },
+          { start: 1.6, end: 1.8, freq: 20 },
+          { start: 1.8, end: 2.0, freq: 7 }
+        ]
+      };
+
+      // Mảng lưu trữ trạng thái các nhóm hiện tại
+      let currentGroups = JSON.parse(JSON.stringify(SAMPLE_DATASETS.sgk1));
+
+      // Biến lưu instance của Chart.js
+      let histogramChartInstance = null;
+      let lastGeneratedMarkdown = "";
+
+      // -------------------------------------------------------------------------
+      // KHỐI 2: CÁC HÀM TOÁN HỌC CỐT LÕI (TUÂN THỦ CHẶT CHẼ SGK TOÁN 12 KNTT)
+      // -------------------------------------------------------------------------
+
+      /**
+       * Hàm làm tròn số thực đến chữ số thập phân chỉ định
+       */
+      function roundNum(val, decimals = 4) {
+        if (typeof val !== 'number' || isNaN(val)) return 0;
+        const factor = Math.pow(10, decimals);
+        return Math.round(val * factor) / factor;
+      }
+
+      /**
+       * Tính toán đầy đủ tất cả các số đặc trưng đo mức độ phân tán và xu thế trung tâm
+       * @param {Array} groups - Mảng các đối tượng { start, end, freq }
+       */
+      function calculateGroupedStatistics(groups) {
+        if (!groups || groups.length === 0) return null;
+
+        // 1. Cỡ mẫu n = tổng các tần số m_i
+        const n = groups.reduce((sum, g) => sum + g.freq, 0);
+        if (n <= 0) return null;
+
+        const k = groups.length;
+
+        // 2. Lập bảng giá trị đại diện x_i = (a_i + a_{i+1}) / 2
+        // Và tính tần số tích lũy C_i (cumulative frequency)
+        let cumulative = 0;
+        const rows = groups.map((g, index) => {
+          const mid = (g.start + g.end) / 2;
+          cumulative += g.freq;
+          const mi_xi = g.freq * mid;
+          const mi_xi2 = g.freq * mid * mid;
+          return {
+            index: index + 1,
+            start: g.start,
+            end: g.end,
+            freq: g.freq,
+            mid: mid,
+            cumulative: cumulative,
+            mi_xi: mi_xi,
+            mi_xi2: mi_xi2
+          };
+        });
+
+        // 3. Số trung bình: \bar{x} = ( \sum m_i * x_i ) / n
+        const sum_mi_xi = rows.reduce((sum, r) => sum + r.mi_xi, 0);
+        const mean = sum_mi_xi / n;
+
+        // 4. Khoảng biến thiên: R = a_{k+1} - a_1
+        const a1 = groups[0].start;
+        const ak1 = groups[groups.length - 1].end;
+        const rangeR = ak1 - a1;
+
+        // 5. Tính Tứ phân vị theo công thức SGK Kết nối tri thức:
+        // Q_p = a_p + [(pos - C_{p-1}) / m_p] * (a_{p+1} - a_p)
+        function findQuartile(fraction) {
+          const pos = fraction * n;
+          // Tìm nhóm thứ p chứa tứ phân vị: C_{p-1} < pos <= C_p
+          let pIndex = 0;
+          for (let i = 0; i < rows.length; i++) {
+            if (rows[i].cumulative >= pos) {
+              pIndex = i;
+              break;
+            }
+          }
+          const group = rows[pIndex];
+          const prevCumulative = pIndex > 0 ? rows[pIndex - 1].cumulative : 0;
+          const h = group.end - group.start; // độ dài nhóm
+          const val = group.start + ((pos - prevCumulative) / group.freq) * h;
+
+          return {
+            val: val,
+            pos: pos,
+            groupIndex: pIndex + 1,
+            groupStart: group.start,
+            groupEnd: group.end,
+            freq: group.freq,
+            prevCumulative: prevCumulative,
+            h: h
+          };
+        }
+
+        const Q1Info = findQuartile(0.25); // Tứ phân vị thứ nhất Q1 (dùng n/4)
+        const Q2Info = findQuartile(0.50); // Trung vị Q2 (dùng n/2)
+        const Q3Info = findQuartile(0.75); // Tứ phân vị thứ ba Q3 (dùng 3n/4)
+
+        const Q1 = Q1Info.val;
+        const Q2 = Q2Info.val;
+        const Q3 = Q3Info.val;
+
+        // 6. Khoảng tứ phân vị: \Delta_Q = Q3 - Q1
+        const deltaQ = Q3 - Q1;
+
+        // 7. Ngưỡng phát hiện giá trị ngoại lệ (Outliers) theo SGK:
+        // Giá trị bất thường nhỏ hơn Q1 - 1.5 * \Delta_Q hoặc lớn hơn Q3 + 1.5 * \Delta_Q
+        const lowerFence = Q1 - 1.5 * deltaQ;
+        const upperFence = Q3 + 1.5 * deltaQ;
+
+        // Đánh giá xem có nhóm nào nằm ngoài ngưỡng không
+        const outlierGroups = rows.filter(r => r.end <= lowerFence || r.start >= upperFence);
+        const hasOutlier = outlierGroups.length > 0;
+
+        // 8. Phương sai và Độ lệch chuẩn:
+        // Cách 1: s^2 = (1/n) * \sum m_i * (x_i - \bar{x})^2
+        let sum_deviations_sq = 0;
+        rows.forEach(r => {
+          const dev = r.mid - mean;
+          const devSq = dev * dev;
+          r.devSq = devSq;
+          r.mi_devSq = r.freq * devSq;
+          sum_deviations_sq += r.mi_devSq;
+        });
+        const variance1 = sum_deviations_sq / n;
+
+        // Cách 2: s^2 = (1/n) * \sum m_i * x_i^2 - (\bar{x})^2
+        const sum_mi_xi2 = rows.reduce((sum, r) => sum + r.mi_xi2, 0);
+        const variance2 = (sum_mi_xi2 / n) - (mean * mean);
+
+        // Chọn phương sai chuẩn (làm mịn sai số dấu phẩy động)
+        const variance = Math.max(0, variance1);
+        const stdDev = Math.sqrt(variance);
+
+        return {
+          n,
+          k,
+          a1,
+          ak1,
+          rows,
+          sum_mi_xi,
+          sum_mi_xi2,
+          sum_deviations_sq,
+          mean,
+          rangeR,
+          Q1Info,
+          Q2Info,
+          Q3Info,
+          Q1,
+          Q2,
+          Q3,
+          deltaQ,
+          lowerFence,
+          upperFence,
+          hasOutlier,
+          outlierGroups,
+          variance,
+          variance2,
+          stdDev
+        };
+      }
+
+      // -------------------------------------------------------------------------
+      // KHỐI 3: SINH LỜI GIẢI CHI TIẾT MARKDOWN VÀ LATEX (CHUẨN SƯ PHẠM SGK KNTT 12)
+      // -------------------------------------------------------------------------
+
+      function generateMarkdownSolution(stats) {
+        if (!stats) return "Chưa có đủ số liệu để xuất lời giải.";
+
+        const {
+          n, k, a1, ak1, rows,
+          sum_mi_xi, sum_mi_xi2, sum_deviations_sq,
+          mean, rangeR,
+          Q1Info, Q2Info, Q3Info,
+          Q1, Q2, Q3, deltaQ,
+          lowerFence, upperFence, hasOutlier, outlierGroups,
+          variance, variance2, stdDev
+        } = stats;
+
+        let md = `## LỜI GIẢI CHI TIẾT THEO SGK TOÁN 12 (KẾT NỐI TRI THỨC VỚI CUỘC SỐNG)\n\n`;
+        md += `**Chuyên đề:** Các số đặc trưng đo mức độ phân tán của mẫu số liệu ghép nhóm.\n\n`;
+        md += `---\n\n`;
+
+        // Bước 1: Lập bảng số liệu có giá trị đại diện và tần số tích lũy
+        md += `### 1. Bảng số liệu có giá trị đại diện và tần số tích lũy\n\n`;
+        md += `Giá trị đại diện của nhóm $[a_i; a_{i+1})$ được tính theo công thức: $x_i = \\frac{a_i + a_{i+1}}{2}$.\n\n`;
+        md += `| STT | Nhóm $[a_i; a_{i+1})$ | Giá trị đại diện $x_i$ | Tần số $m_i$ | Tần số tích lũy $C_i$ | $m_i \\cdot x_i$ | $m_i \\cdot x_i^2$ | $m_i(x_i - \\overline{x})^2$ |\n`;
+        md += `|:---:|:---------------------:|:----------------------:|:------------:|:---------------------:|:---------------:|:-----------------:|:----------------------------:|\n`;
+
+        rows.forEach(r => {
+          md += `| ${r.index} | $[${r.start}; ${r.end})$ | $${roundNum(r.mid, 2)}$ | $${r.freq}$ | $${r.cumulative}$ | $${roundNum(r.mi_xi, 2)}$ | $${roundNum(r.mi_xi2, 2)}$ | $${roundNum(r.mi_devSq, 4)}$ |\n`;
+        });
+
+        md += `| **Tổng** | — | — | **$n = ${n}$** | — | **$${roundNum(sum_mi_xi, 2)}$** | **$${roundNum(sum_mi_xi2, 2)}$** | **$${roundNum(sum_deviations_sq, 4)}$** |\n\n`;
+
+        // Bước 2: Số trung bình
+        md += `### 2. Số trung bình của mẫu số liệu ghép nhóm ($\\overline{x}$)\n\n`;
+        md += `Tổng số quan sát (cỡ mẫu): $n = \\sum_{i=1}^{${k}} m_i = ${n}$.\n\n`;
+        md += `$$\\overline{x} = \\frac{m_1x_1 + m_2x_2 + \\dots + m_kx_k}{n} = \\frac{${roundNum(sum_mi_xi, 2)}}{${n}} \\approx ${roundNum(mean, 4)}$$\n\n`;
+
+        // Bước 3: Khoảng biến thiên
+        md += `### 3. Khoảng biến thiên ($R$)\n\n`;
+        md += `Khoảng biến thiên là hiệu giữa đầu mút phải của nhóm cuối cùng và đầu mút trái của nhóm đầu tiên:\n\n`;
+        md += `$$R = a_{${k+1}} - a_1 = ${ak1} - ${a1} = ${roundNum(rangeR, 4)}$$\n\n`;
+        md += `*Ý nghĩa:* Cho biết độ phân tán thô sơ của toàn bộ mẫu số liệu trên khoảng $[${a1}; ${ak1}]$.\n\n`;
+
+        // Bước 4: Tứ phân vị và Khoảng tứ phân vị
+        md += `### 4. Tứ phân vị và Khoảng tứ phân vị\n\n`;
+
+        // 4.1 Tứ phân vị thứ nhất Q1
+        md += `#### a) Tứ phân vị thứ nhất ($Q_1$)\n\n`;
+        md += `- Ta có: $\\frac{n}{4} = \\frac{${n}}{4} = ${Q1Info.pos}$.\n`;
+        md += `- Do tần số tích lũy: $C_{${Q1Info.groupIndex - 1}} = ${Q1Info.prevCumulative} < ${Q1Info.pos} \\le C_{${Q1Info.groupIndex}} = ${rows[Q1Info.groupIndex - 1].cumulative}$, nên nhóm thứ ${Q1Info.groupIndex} là nhóm $[${Q1Info.groupStart}; ${Q1Info.groupEnd})$ chứa $Q_1$.\n`;
+        md += `- Áp dụng công thức SGK:\n\n`;
+        md += `$$Q_1 = a_p + \\frac{\\frac{n}{4} - C_{p-1}}{m_p} \\cdot (a_{p+1} - a_p) = ${Q1Info.groupStart} + \\frac{${Q1Info.pos} - ${Q1Info.prevCumulative}}{${Q1Info.freq}} \\cdot (${Q1Info.groupEnd} - ${Q1Info.groupStart}) \\approx ${roundNum(Q1, 4)}$$\n\n`;
+
+        // 4.2 Trung vị Q2
+        md += `#### b) Tứ phân vị thứ hai (Trung vị $Q_2$ hay $M_e$)\n\n`;
+        md += `- Ta có: $\\frac{n}{2} = \\frac{${n}}{2} = ${Q2Info.pos}$.\n`;
+        md += `- Nhóm thứ ${Q2Info.groupIndex} là nhóm $[${Q2Info.groupStart}; ${Q2Info.groupEnd})$ chứa $Q_2$ (vì $C_{${Q2Info.groupIndex - 1}} = ${Q2Info.prevCumulative} < ${Q2Info.pos} \\le C_{${Q2Info.groupIndex}} = ${rows[Q2Info.groupIndex - 1].cumulative}$).\n`;
+        md += `- Áp dụng công thức:\n\n`;
+        md += `$$Q_2 = M_e = a_p + \\frac{\\frac{n}{2} - C_{p-1}}{m_p} \\cdot (a_{p+1} - a_p) = ${Q2Info.groupStart} + \\frac{${Q2Info.pos} - ${Q2Info.prevCumulative}}{${Q2Info.freq}} \\cdot (${Q2Info.groupEnd} - ${Q2Info.groupStart}) \\approx ${roundNum(Q2, 4)}$$\n\n`;
+
+        // 4.3 Tứ phân vị thứ ba Q3
+        md += `#### c) Tứ phân vị thứ ba ($Q_3$)\n\n`;
+        md += `- Ta có: $\\frac{3n}{4} = \\frac{3 \\cdot ${n}}{4} = ${Q3Info.pos}$.\n`;
+        md += `- Nhóm thứ ${Q3Info.groupIndex} là nhóm $[${Q3Info.groupStart}; ${Q3Info.groupEnd})$ chứa $Q_3$ (vì $C_{${Q3Info.groupIndex - 1}} = ${Q3Info.prevCumulative} < ${Q3Info.pos} \\le C_{${Q3Info.groupIndex}} = ${rows[Q3Info.groupIndex - 1].cumulative}$).\n`;
+        md += `- Áp dụng công thức:\n\n`;
+        md += `$$Q_3 = a_p + \\frac{\\frac{3n}{4} - C_{p-1}}{m_p} \\cdot (a_{p+1} - a_p) = ${Q3Info.groupStart} + \\frac{${Q3Info.pos} - ${Q3Info.prevCumulative}}{${Q3Info.freq}} \\cdot (${Q3Info.groupEnd} - ${Q3Info.groupStart}) \\approx ${roundNum(Q3, 4)}$$\n\n`;
+
+        // 4.4 Khoảng tứ phân vị Delta_Q
+        md += `#### d) Khoảng tứ phân vị ($\\Delta_Q$)\n\n`;
+        md += `$$\\Delta_Q = Q_3 - Q_1 = ${roundNum(Q3, 4)} - ${roundNum(Q1, 4)} = ${roundNum(deltaQ, 4)}$$\n\n`;
+        md += `*Ý nghĩa:* $\\Delta_Q$ là độ phân tán của $50\\%$ số liệu ở vị trí trung tâm, không bị ảnh hưởng bởi các giá trị bất thường.\n\n`;
+
+        // Bước 5: Giá trị ngoại lệ
+        md += `### 5. Kiểm tra giá trị bất thường (Giá trị ngoại lệ - Outliers)\n\n`;
+        md += `- Ngưỡng dưới: $Q_1 - 1{,}5 \\cdot \\Delta_Q = ${roundNum(Q1, 4)} - 1{,}5 \\cdot ${roundNum(deltaQ, 4)} = ${roundNum(lowerFence, 4)}$.\n`;
+        md += `- Ngưỡng trên: $Q_3 + 1{,}5 \\cdot \\Delta_Q = ${roundNum(Q3, 4)} + 1{,}5 \\cdot ${roundNum(deltaQ, 4)} = ${roundNum(upperFence, 4)}$.\n\n`;
+
+        if (hasOutlier) {
+          md += `⚠️ **Phát hiện:** Có các giá trị/nhóm nằm ngoài khoảng $[${roundNum(lowerFence, 2)}; ${roundNum(upperFence, 2)}]$:\n`;
+          outlierGroups.forEach(og => {
+            md += `- Nhóm $[${og.start}; ${og.end})$ với tần số $m = ${og.freq}$ được xem là có chứa giá trị bất thường.\n`;
+          });
+        } else {
+          md += `✅ **Kết luận:** Toàn bộ mẫu số liệu nằm trong khoảng $[${roundNum(lowerFence, 2)}; ${roundNum(upperFence, 2)}]$, do đó **không có giá trị bất thường** (giá trị ngoại lệ).\n\n`;
+        }
+
+        // Bước 6: Phương sai và Độ lệch chuẩn
+        md += `### 6. Phương sai ($s^2$) và Độ lệch chuẩn ($s$)\n\n`;
+        md += `#### a) Phương sai ($s^2$):\n\n`;
+        md += `*Cách 1 (Công thức định nghĩa):*\n\n`;
+        md += `$$s^2 = \\frac{1}{n} \\sum_{i=1}^{k} m_i(x_i - \\overline{x})^2 = \\frac{${roundNum(sum_deviations_sq, 4)}}{${n}} \\approx ${roundNum(variance, 4)}$$\n\n`;
+        md += `*Cách 2 (Công thức khai triển thuận tiện khi tính tay):*\n\n`;
+        md += `$$s^2 = \\frac{1}{n} \\left( \\sum_{i=1}^{k} m_i x_i^2 \\right) - (\\overline{x})^2 = \\frac{${roundNum(sum_mi_xi2, 2)}}{${n}} - (${roundNum(mean, 4)})^2 \\approx ${roundNum(variance2, 4)}$$\n\n`;
+        md += `#### b) Độ lệch chuẩn ($s$):\n\n`;
+        md += `$$s = \\sqrt{s^2} = \\sqrt{${roundNum(variance, 4)}} \\approx ${roundNum(stdDev, 4)}$$\n\n`;
+
+        // Bước 7: Nhận xét sư phạm
+        md += `### 7. Nhận xét sư phạm của Thầy Thắng\n\n`;
+        md += `- **Mức độ tập trung:** Số trung bình $\\overline{x} \\approx ${roundNum(mean, 2)}$ và trung vị $Q_2 \\approx ${roundNum(Q2, 2)}$ phản ánh trung tâm của phân phối số liệu.\n`;
+        md += `- **Mức độ phân tán:** Độ lệch chuẩn $s \\approx ${roundNum(stdDev, 2)}$ phản ánh mức độ dao động của các giá trị quanh số trung bình. Khi so sánh với một mẫu số liệu khác cùng loại, mẫu nào có độ lệch chuẩn $s$ nhỏ hơn thì các giá trị sẽ đồng đều và ổn định hơn.\n`;
+
+        return md;
+      }
+
+      // -------------------------------------------------------------------------
+      // KHỐI 4: GIAO DIỆN & VẼ BIỂU ĐỒ (HISTOGRAM BẰNG CHART.JS)
+      // -------------------------------------------------------------------------
+
+      function renderHistogramChart(stats) {
+        if (!stats) return;
+        const ctx = document.getElementById('histogramCanvas').getContext('2d');
+
+        const labels = stats.rows.map(r => `[${r.start}; ${r.end})`);
+        const frequencies = stats.rows.map(r => r.freq);
+        const midPoints = stats.rows.map(r => roundNum(r.mid, 2));
+
+        if (histogramChartInstance) {
+          histogramChartInstance.destroy();
+        }
+
+        histogramChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Tần số m_i',
+                data: frequencies,
+                backgroundColor: 'rgba(37, 99, 235, 0.75)', // Royal edu blue
+                borderColor: 'rgba(29, 78, 216, 1)',
+                borderWidth: 1.5,
+                borderRadius: 4,
+                order: 2
+              },
+              {
+                label: 'Đa giác tần số',
+                data: frequencies,
+                type: 'line',
+                borderColor: 'rgba(249, 115, 22, 1)', // Orange accent
+                backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(249, 115, 22, 1)',
+                pointRadius: 4,
+                tension: 0.3,
+                order: 1
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  boxWidth: 12,
+                  font: { family: 'Be Vietnam Pro', size: 11, weight: 'bold' }
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  title: (items) => `Khoảng: ${items[0].label}`,
+                  afterTitle: (items) => `Giá trị đại diện x_i = ${midPoints[items[0].dataIndex]}`,
+                  label: (item) => `Tần số: ${item.raw} (${roundNum((item.raw / stats.n) * 100, 1)}%)`
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: {
+                  font: { family: 'Be Vietnam Pro', size: 11 }
+                },
+                title: {
+                  display: true,
+                  text: 'Các nhóm ghép nhóm [a_i; a_{i+1})',
+                  font: { family: 'Be Vietnam Pro', size: 12, weight: 'bold' },
+                  color: '#475569'
+                }
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: '#f1f5f9' },
+                ticks: {
+                  stepSize: 1,
+                  font: { family: 'Be Vietnam Pro', size: 11 }
+                },
+                title: {
+                  display: true,
+                  text: 'Tần số (m_i)',
+                  font: { family: 'Be Vietnam Pro', size: 12, weight: 'bold' },
+                  color: '#475569'
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // -------------------------------------------------------------------------
+      // KHỐI 5: MÔ PHỎNG TỨ PHÂN VỊ TRÊN TRỤC SỐ (BOX PLOT CANVAS)
+      // -------------------------------------------------------------------------
+
+      function renderBoxPlot(stats) {
+        if (!stats) return;
+        const canvas = document.getElementById('boxplotCanvas');
+        if (!canvas) return;
+
+        // Thiết lập kích thước canvas theo độ phân giải Retina
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const width = rect.width;
+        const height = rect.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        const minVal = Math.min(stats.a1, stats.lowerFence);
+        const maxVal = Math.max(stats.ak1, stats.upperFence);
+        const paddingSpan = (maxVal - minVal) * 0.1 || 2;
+        const plotMin = minVal - paddingSpan;
+        const plotMax = maxVal + paddingSpan;
+
+        function valToX(v) {
+          return 60 + ((v - plotMin) / (plotMax - plotMin)) * (width - 120);
+        }
+
+        const centerY = height * 0.35;
+        const boxHeight = 42;
+        const xMin = valToX(stats.a1);
+        const xMax = valToX(stats.ak1);
+        const xQ1 = valToX(stats.Q1);
+        const xQ2 = valToX(stats.Q2);
+        const xQ3 = valToX(stats.Q3);
+        const xLowerFence = valToX(stats.lowerFence);
+        const xUpperFence = valToX(stats.upperFence);
+
+        // 1. Vẽ vùng giới hạn ngoại lệ mờ (Outlier zones)
+        ctx.fillStyle = 'rgba(254, 226, 226, 0.45)'; // Red-100 tint
+        if (xLowerFence > 60) {
+          ctx.fillRect(60, centerY - boxHeight - 20, Math.max(0, xLowerFence - 60), boxHeight * 2 + 40);
+        }
+        if (xUpperFence < width - 60) {
+          ctx.fillRect(xUpperFence, centerY - boxHeight - 20, width - 60 - xUpperFence, boxHeight * 2 + 40);
+        }
+
+        // 2. Vẽ đường trục toạ độ số
+        const axisY = height - 76;
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(35, axisY);
+        ctx.lineTo(width - 35, axisY);
+        ctx.stroke();
+
+        // Mũi tên trục số
+        ctx.fillStyle = '#94a3b8';
+        ctx.beginPath();
+        ctx.moveTo(width - 35, axisY - 4);
+        ctx.lineTo(width - 27, axisY);
+        ctx.lineTo(width - 35, axisY + 4);
+        ctx.fill();
+
+        // 3. Vẽ hai râu (Whiskers): từ Min -> Q1 và Q3 -> Max
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+        // Râu trái
+        ctx.beginPath();
+        ctx.moveTo(xMin, centerY);
+        ctx.lineTo(xQ1, centerY);
+        ctx.stroke();
+        // Vạch Min
+        ctx.beginPath();
+        ctx.moveTo(xMin, centerY - 14);
+        ctx.lineTo(xMin, centerY + 14);
+        ctx.stroke();
+
+        // Râu phải
+        ctx.beginPath();
+        ctx.moveTo(xQ3, centerY);
+        ctx.lineTo(xMax, centerY);
+        ctx.stroke();
+        // Vạch Max
+        ctx.beginPath();
+        ctx.moveTo(xMax, centerY - 14);
+        ctx.lineTo(xMax, centerY + 14);
+        ctx.stroke();
+
+        // 4. Vẽ Hộp (Box) giữa Q1 và Q3
+        const boxWidth = Math.max(2, xQ3 - xQ1);
+        ctx.fillStyle = 'rgba(191, 219, 254, 0.85)'; // Sky blue
+        ctx.fillRect(xQ1, centerY - boxHeight / 2, boxWidth, boxHeight);
+        ctx.strokeStyle = '#1d4ed8';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(xQ1, centerY - boxHeight / 2, boxWidth, boxHeight);
+
+        // 5. Vẽ vạch trung vị Q2 (đỏ/cam đậm)
+        ctx.strokeStyle = '#dc2626';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(xQ2, centerY - boxHeight / 2);
+        ctx.lineTo(xQ2, centerY + boxHeight / 2);
+        ctx.stroke();
+
+        // 6. Vẽ đường dóng xuống trục số
+        ctx.setLineDash([3, 3]);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#cbd5e1';
+
+        const marks = [
+          { key: 'min', val: stats.a1, x: xMin, label: `Min = ${roundNum(stats.a1, 2)}`, color: '#475569', bold: false },
+          { key: 'q1', val: stats.Q1, x: xQ1, label: `Q₁ = ${roundNum(stats.Q1, 2)}`, color: '#1d4ed8', bold: true },
+          { key: 'q2', val: stats.Q2, x: xQ2, label: `Q₂(Me) = ${roundNum(stats.Q2, 2)}`, color: '#dc2626', bold: true },
+          { key: 'q3', val: stats.Q3, x: xQ3, label: `Q₃ = ${roundNum(stats.Q3, 2)}`, color: '#1d4ed8', bold: true },
+          { key: 'max', val: stats.ak1, x: xMax, label: `Max = ${roundNum(stats.ak1, 2)}`, color: '#475569', bold: false }
+        ];
+
+        // Sắp xếp các mốc theo tọa độ x tăng dần
+        marks.sort((a, b) => a.x - b.x);
+
+        // Vẽ đường dóng từ hộp xuống trục và các chấm tròn trên trục
+        marks.forEach(m => {
+          ctx.setLineDash([3, 3]);
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(m.x, centerY + (boxHeight / 2) + 2);
+          ctx.lineTo(m.x, axisY);
+          ctx.stroke();
+
+          // Chấm tròn trên trục
+          ctx.setLineDash([]);
+          ctx.fillStyle = m.color;
+          ctx.beginPath();
+          ctx.arc(m.x, axisY, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Thuật toán chống đè nhãn (Collision Detection & Multi-Tier Staggering)
+        // Tính toán độ rộng của từng nhãn và xếp tầng so le khi các mốc ở gần nhau
+        const PADDING_COLLISION = 8; // Khoảng đệm an toàn giữa 2 nhãn
+        const rowsOccupiedRanges = []; // Danh sách các khoảng [left, right] theo từng tầng (row)
+
+        marks.forEach(m => {
+          ctx.font = m.bold ? 'bold 11px "Be Vietnam Pro", sans-serif' : '11px "Be Vietnam Pro", sans-serif';
+          const textWidth = ctx.measureText(m.label).width;
+          m.width = textWidth;
+
+          // Căn lề an toàn để nhãn không bị lọt khỏi khung canvas
+          let drawX = m.x;
+          if (drawX - textWidth / 2 < 12) drawX = 12 + textWidth / 2;
+          if (drawX + textWidth / 2 > width - 12) drawX = width - 12 - textWidth / 2;
+          m.drawX = drawX;
+
+          const left = drawX - textWidth / 2;
+          const right = drawX + textWidth / 2;
+
+          // Tìm tầng (row = 0, 1, 2...) đầu tiên không va chạm với các nhãn đã vẽ
+          let targetRow = 0;
+          while (true) {
+            const currentRanges = rowsOccupiedRanges[targetRow] || [];
+            const hasConflict = currentRanges.some(r => !(right + PADDING_COLLISION <= r.left || left >= r.right + PADDING_COLLISION));
+            if (!hasConflict) {
+              if (!rowsOccupiedRanges[targetRow]) rowsOccupiedRanges[targetRow] = [];
+              rowsOccupiedRanges[targetRow].push({ left, right });
+              m.row = targetRow;
+              break;
+            }
+            targetRow++;
+          }
+        });
+
+        // Vẽ từng nhãn theo tầng đã tính toán
+        ctx.textAlign = 'center';
+        marks.forEach(m => {
+          const labelY = axisY + 18 + m.row * 18;
+
+          // Nếu nhãn nằm ở tầng thứ 2 trở xuống (row > 0), vẽ vạch chỉ dẫn màu tương ứng nối từ trục xuống
+          if (m.row > 0) {
+            ctx.setLineDash([2, 2]);
+            ctx.strokeStyle = m.color;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(m.x, axisY + 5);
+            ctx.lineTo(m.drawX, labelY - 11);
+            ctx.stroke();
+          }
+
+          // Nhãn văn bản
+          ctx.fillStyle = m.color;
+          ctx.font = m.bold ? 'bold 11px "Be Vietnam Pro", sans-serif' : '11px "Be Vietnam Pro", sans-serif';
+          ctx.fillText(m.label, m.drawX, labelY);
+        });
+
+        // 7. Nhãn các khoảng 25% phía trên hộp
+        ctx.font = 'bold 10px "Be Vietnam Pro", sans-serif';
+        ctx.textAlign = 'center';
+        if (xQ1 - xMin >= 26) {
+          ctx.fillStyle = '#64748b';
+          ctx.fillText('25%', (xMin + xQ1) / 2, centerY - 8);
+        }
+        if (xQ2 - xQ1 >= 24) {
+          ctx.fillStyle = '#1e40af';
+          ctx.fillText('25%', (xQ1 + xQ2) / 2, centerY - (boxHeight / 2) - 6);
+        }
+        if (xQ3 - xQ2 >= 24) {
+          ctx.fillStyle = '#1e40af';
+          ctx.fillText('25%', (xQ2 + xQ3) / 2, centerY - (boxHeight / 2) - 6);
+        }
+        if (xMax - xQ3 >= 26) {
+          ctx.fillStyle = '#64748b';
+          ctx.fillText('25%', (xQ3 + xMax) / 2, centerY - 8);
+        }
+
+        // 8. Vẽ đường ngưỡng ngoại lệ (Outlier fences)
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+
+        // Ngưỡng dưới
+        if (xLowerFence >= 25 && xLowerFence <= width - 25) {
+          ctx.beginPath();
+          ctx.moveTo(xLowerFence, centerY - boxHeight - 12);
+          ctx.lineTo(xLowerFence, centerY + boxHeight + 12);
+          ctx.stroke();
+          ctx.fillStyle = '#b91c1c';
+          ctx.font = '9px "Be Vietnam Pro", sans-serif';
+          ctx.fillText(`Rào dưới: ${roundNum(stats.lowerFence, 1)}`, Math.max(45, xLowerFence), centerY - boxHeight - 16);
+        }
+
+        // Ngưỡng trên
+        if (xUpperFence >= 25 && xUpperFence <= width - 25) {
+          ctx.beginPath();
+          ctx.moveTo(xUpperFence, centerY - boxHeight - 12);
+          ctx.lineTo(xUpperFence, centerY + boxHeight + 12);
+          ctx.stroke();
+          ctx.fillStyle = '#b91c1c';
+          ctx.font = '9px "Be Vietnam Pro", sans-serif';
+          ctx.fillText(`Rào trên: ${roundNum(stats.upperFence, 1)}`, Math.min(width - 45, xUpperFence), centerY - boxHeight - 16);
+        }
+      }
+
+      // -------------------------------------------------------------------------
+      // KHỐI 6: CẬP NHẬT GIAO DIỆN VÀ RENDER TỔNG THỂ
+      // -------------------------------------------------------------------------
+
+      function renderDynamicTable() {
+        const tbody = document.getElementById('groupTableBody');
+        tbody.innerHTML = '';
+
+        let totalN = 0;
+
+        currentGroups.forEach((g, index) => {
+          totalN += Number(g.freq) || 0;
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50 transition-colors';
+
+          tr.innerHTML = `
+            <td class="py-2 px-3 text-center font-mono text-slate-400 font-semibold">${index + 1}</td>
+            <td class="py-2 px-3">
+              <div class="flex items-center gap-1.5 font-mono text-xs">
+                <span class="text-slate-400">[</span>
+                <input type="number" step="any" value="${g.start}" data-index="${index}" data-field="start" class="row-input w-20 px-2 py-1 border border-slate-200 rounded text-center focus:border-edu-500 focus:outline-none" />
+                <span class="text-slate-400">;</span>
+                <input type="number" step="any" value="${g.end}" data-index="${index}" data-field="end" class="row-input w-20 px-2 py-1 border border-slate-200 rounded text-center focus:border-edu-500 focus:outline-none" />
+                <span class="text-slate-400">)</span>
+              </div>
+            </td>
+            <td class="py-2 px-3 text-center">
+              <input type="number" min="0" value="${g.freq}" data-index="${index}" data-field="freq" class="row-input w-20 px-2 py-1 border border-slate-200 rounded text-center font-bold text-slate-800 focus:border-edu-500 focus:outline-none" />
+            </td>
+            <td class="py-2 px-2 text-center">
+              <button type="button" data-delete-index="${index}" class="btn-delete-row text-slate-400 hover:text-rose-600 transition-colors p-1" title="Xóa dòng này">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('totalSampleSize').textContent = totalN;
+
+        // Lắng nghe sự kiện sửa ô input
+        document.querySelectorAll('.row-input').forEach(input => {
+          input.addEventListener('change', (e) => {
+            const idx = parseInt(e.target.dataset.index, 10);
+            const field = e.target.dataset.field;
+            const val = parseFloat(e.target.value) || 0;
+            currentGroups[idx][field] = val;
+            updateAppOutputs();
+          });
+        });
+
+        // Lắng nghe nút xóa dòng
+        document.querySelectorAll('.btn-delete-row').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const idx = parseInt(btn.closest('button').dataset.deleteIndex, 10);
+            if (currentGroups.length > 1) {
+              currentGroups.splice(idx, 1);
+              renderDynamicTable();
+              updateAppOutputs();
+            } else {
+              alert('Cần có ít nhất 1 nhóm dữ liệu.');
+            }
+          });
+        });
+      }
+
+      function updateAppOutputs() {
+        const stats = calculateGroupedStatistics(currentGroups);
+        if (!stats) return;
+
+        // 1. Cập nhật Mini stats
+        document.getElementById('statMean').textContent = roundNum(stats.mean, 2);
+        document.getElementById('statRange').textContent = roundNum(stats.rangeR, 2);
+        document.getElementById('statIQR').textContent = roundNum(stats.deltaQ, 2);
+        document.getElementById('statStdDev').textContent = roundNum(stats.stdDev, 2);
+        document.getElementById('totalSampleSize').textContent = stats.n;
+
+        // 2. Cập nhật Biểu đồ hình cột (Chart.js)
+        renderHistogramChart(stats);
+
+        // 3. Cập nhật Sơ đồ hộp (Box Plot Canvas)
+        renderBoxPlot(stats);
+
+        // 4. Sinh lời giải Markdown và render ra HTML + MathJax
+        lastGeneratedMarkdown = generateMarkdownSolution(stats);
+        renderSolutionHTML(lastGeneratedMarkdown);
+      }
+
+      function renderSolutionHTML(markdownText) {
+        const renderContainer = document.getElementById('solutionRenderedArea');
+        if (typeof marked !== 'undefined') {
+          renderContainer.innerHTML = marked.parse(markdownText);
+          // Định kiểu bảng số liệu cho đẹp
+          renderContainer.querySelectorAll('table').forEach(tbl => {
+            tbl.className = 'math-table w-full text-xs sm:text-sm my-4 border border-slate-200 text-left';
+          });
+          // Kích hoạt MathJax hiển thị công thức LaTeX
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([renderContainer]).catch(err => console.error(err));
+          }
+        } else {
+          renderContainer.textContent = markdownText;
+        }
+      }
+
+      // -------------------------------------------------------------------------
+      // KHỐI 7: TÍCH HỢP GEMINI AI OCR (NHẬN DIỆN ẢNH ĐỀ BÀI)
+      // -------------------------------------------------------------------------
+
+      /**
+       * Hàm gửi ảnh đề bài lên máy chủ Express (/api/ocr) để gọi Gemini 3.8 Flash SDK an toàn
+       * Hỗ trợ gửi 1 ảnh hoặc mảng 2 ảnh
+       */
+      async function callGeminiOcrApi(imagesInput, defaultMime = 'image/jpeg') {
+        let payload = {};
+        if (Array.isArray(imagesInput)) {
+          payload = { images: imagesInput };
+        } else if (typeof imagesInput === 'object' && (imagesInput.data || imagesInput.imageBase64)) {
+          payload = { imageBase64: imagesInput.data || imagesInput.imageBase64, mimeType: imagesInput.mimeType || defaultMime };
+        } else {
+          payload = { imageBase64: imagesInput, mimeType: defaultMime };
+        }
+
+        const response = await fetch('/api/ocr', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.error || `Lỗi từ máy chủ (HTTP ${response.status})`);
+        }
+
+        if (!data.groups || !Array.isArray(data.groups) || data.groups.length === 0) {
+          throw new Error('Không phân tích được danh sách nhóm số liệu từ hình ảnh đề bài.');
+        }
+
+        return data.groups;
+      }
+
+      // -------------------------------------------------------------------------
+      // KHỐI 8: BỘ PHÂN TÍCH TEXT COPY & PASTE
+      // -------------------------------------------------------------------------
+
+      function parseTextToGroups(rawText) {
+        const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const results = [];
+
+        for (const line of lines) {
+          // Khớp dạng: [10; 20): 15 hoặc [10, 20]: 15 hoặc [10 - 20) 15
+          const intervalMatch = line.match(/[\[\(]?\s*([0-9.]+)\s*[;\-,–—]\s*([0-9.]+)\s*[\]\)]?[\s:=–\t]+([0-9.]+)/);
+          if (intervalMatch) {
+            results.push({
+              start: parseFloat(intervalMatch[1]),
+              end: parseFloat(intervalMatch[2]),
+              freq: parseFloat(intervalMatch[3])
+            });
+            continue;
+          }
+
+          // Khớp dạng copy 2 cột từ Excel: "10 20 5" hoặc "10-20 5"
+          const tokens = line.split(/[\t,;:]+/).map(t => t.trim()).filter(Boolean);
+          if (tokens.length >= 2) {
+            const freqVal = parseFloat(tokens[tokens.length - 1]);
+            const rangeStr = tokens.slice(0, -1).join(' ');
+            const rangeParts = rangeStr.replace(/[\[\]\(\)]/g, '').split(/[\s;\-,–—]+/).map(parseFloat).filter(n => !isNaN(n));
+            if (rangeParts.length >= 2 && !isNaN(freqVal)) {
+              results.push({
+                start: rangeParts[0],
+                end: rangeParts[1],
+                freq: freqVal
+              });
+            }
+          }
+        }
+
+        return results;
+      }
+
+      // -------------------------------------------------------------------------
+      // KHỐI 9: THIẾT LẬP CÁC SỰ KIỆN TƯƠNG TÁC (EVENT LISTENERS)
+      // -------------------------------------------------------------------------
+
+      document.addEventListener('DOMContentLoaded', () => {
+        // 1. Khởi tạo bảng và kết quả ban đầu
+        renderDynamicTable();
+        updateAppOutputs();
+
+        // 2. Chuyển đổi Tab phương thức nhập liệu
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const targetId = btn.dataset.tab;
+            tabButtons.forEach(b => {
+              b.classList.remove('bg-white', 'text-edu-800', 'shadow-sm', 'font-bold');
+              b.classList.add('text-slate-600');
+            });
+            btn.classList.add('bg-white', 'text-edu-800', 'shadow-sm', 'font-bold');
+            btn.classList.remove('text-slate-600');
+
+            tabContents.forEach(c => c.classList.add('hidden'));
+            document.getElementById(targetId).classList.remove('hidden');
+          });
+        });
+
+        // 3. Nút thêm hàng mới vào bảng trực tiếp
+        document.getElementById('btnAddRow').addEventListener('click', () => {
+          let nextStart = 0;
+          let nextEnd = 10;
+          if (currentGroups.length > 0) {
+            const last = currentGroups[currentGroups.length - 1];
+            const step = last.end - last.start || 5;
+            nextStart = last.end;
+            nextEnd = last.end + step;
+          }
+          currentGroups.push({ start: nextStart, end: nextEnd, freq: 5 });
+          renderDynamicTable();
+          updateAppOutputs();
+        });
+
+        // 4. Nút xóa toàn bộ
+        document.getElementById('btnClearRows').addEventListener('click', () => {
+          if (confirm('Bạn có chắc muốn xóa tất cả các nhóm?')) {
+            currentGroups = [{ start: 0, end: 5, freq: 1 }];
+            renderDynamicTable();
+            updateAppOutputs();
+          }
+        });
+
+        // 5. Chọn ví dụ SGK có sẵn
+        const selectPreset = document.getElementById('selectSamplePreset');
+        selectPreset.addEventListener('change', (e) => {
+          const key = e.target.value;
+          if (SAMPLE_DATASETS[key]) {
+            currentGroups = JSON.parse(JSON.stringify(SAMPLE_DATASETS[key]));
+            renderDynamicTable();
+            updateAppOutputs();
+          }
+        });
+
+        document.getElementById('btnQuickSample').addEventListener('click', () => {
+          selectPreset.value = selectPreset.value === 'sgk1' ? 'sgk2' : (selectPreset.value === 'sgk2' ? 'sgk3' : 'sgk1');
+          selectPreset.dispatchEvent(new Event('change'));
+        });
+
+        // 6. Xử lý Tab 2: Chụp và dán tối đa 2 ảnh (Clipboard Paste 2 slots)
+        let pastedImages = [null, null]; // Mỗi phần tử là { data: base64, mimeType: string, url: string }
+        let activePasteSlot = 0; // 0 (ô 1) hoặc 1 (ô 2)
+
+        function updatePastedSlotsUI() {
+          const slot1 = document.getElementById('pasteSlot1');
+          const slot2 = document.getElementById('pasteSlot2');
+          const s1Empty = document.getElementById('slot1Empty');
+          const s1Filled = document.getElementById('slot1Filled');
+          const s2Empty = document.getElementById('slot2Empty');
+          const s2Filled = document.getElementById('slot2Filled');
+          const img1 = document.getElementById('imgSlot1');
+          const img2 = document.getElementById('imgSlot2');
+          const badge = document.getElementById('pastedCountBadge');
+          const btnClearAll = document.getElementById('btnClearAllPasted');
+          const btnOcr = document.getElementById('btnOcrPastedImg');
+          const btnOcrText = document.getElementById('btnOcrPastedText');
+
+          // Highlight slot đang chọn
+          if (activePasteSlot === 0) {
+            slot1.classList.add('ring-2', 'ring-edu-500');
+            slot2.classList.remove('ring-2', 'ring-edu-500');
+          } else {
+            slot2.classList.add('ring-2', 'ring-edu-500');
+            slot1.classList.remove('ring-2', 'ring-edu-500');
+          }
+
+          // Cập nhật ô 1
+          if (pastedImages[0]) {
+            s1Empty.classList.add('hidden');
+            s1Filled.classList.remove('hidden');
+            img1.src = pastedImages[0].url;
+            slot1.classList.remove('border-dashed', 'border-edu-400');
+            slot1.classList.add('border-solid', 'border-edu-300');
+          } else {
+            s1Empty.classList.remove('hidden');
+            s1Filled.classList.add('hidden');
+            img1.src = '';
+            slot1.classList.add('border-dashed', 'border-edu-400');
+            slot1.classList.remove('border-solid', 'border-edu-300');
+          }
+
+          // Cập nhật ô 2
+          if (pastedImages[1]) {
+            s2Empty.classList.add('hidden');
+            s2Filled.classList.remove('hidden');
+            img2.src = pastedImages[1].url;
+            slot2.classList.remove('border-dashed', 'border-slate-300');
+            slot2.classList.add('border-solid', 'border-edu-300');
+          } else {
+            s2Empty.classList.remove('hidden');
+            s2Filled.classList.add('hidden');
+            img2.src = '';
+            slot2.classList.add('border-dashed', 'border-slate-300');
+            slot2.classList.remove('border-solid', 'border-edu-300');
+          }
+
+          const count = (pastedImages[0] ? 1 : 0) + (pastedImages[1] ? 1 : 0);
+          badge.textContent = `${count}/2 ảnh`;
+
+          if (count > 0) {
+            btnClearAll.classList.remove('hidden');
+            btnOcr.disabled = false;
+            if (count === 1) {
+              btnOcrText.textContent = 'Dùng AI Trích Xuất Vào Bảng Tính (1 ảnh)';
+            } else {
+              btnOcrText.textContent = 'Dùng AI Tổng Hợp & Ghép Dữ Liệu Từ Cả 2 Ảnh';
+            }
+          } else {
+            btnClearAll.classList.add('hidden');
+            btnOcr.disabled = true;
+            btnOcrText.textContent = 'Dán ít nhất 1 ảnh để trích xuất';
+          }
+        }
+
+        // Click vào ô để chọn vị trí dán
+        document.getElementById('pasteSlot1').addEventListener('click', (e) => {
+          if (!e.target.closest('#btnRemoveSlot1')) {
+            activePasteSlot = 0;
+            updatePastedSlotsUI();
+          }
+        });
+
+        document.getElementById('pasteSlot2').addEventListener('click', (e) => {
+          if (!e.target.closest('#btnRemoveSlot2')) {
+            activePasteSlot = 1;
+            updatePastedSlotsUI();
+          }
+        });
+
+        // Nút xóa từng ô
+        document.getElementById('btnRemoveSlot1').addEventListener('click', (e) => {
+          e.stopPropagation();
+          pastedImages[0] = null;
+          activePasteSlot = 0;
+          updatePastedSlotsUI();
+        });
+
+        document.getElementById('btnRemoveSlot2').addEventListener('click', (e) => {
+          e.stopPropagation();
+          pastedImages[1] = null;
+          activePasteSlot = 1;
+          updatePastedSlotsUI();
+        });
+
+        // Xóa cả 2 ô
+        document.getElementById('btnClearAllPasted').addEventListener('click', () => {
+          pastedImages = [null, null];
+          activePasteSlot = 0;
+          updatePastedSlotsUI();
+        });
+
+        // Lắng nghe sự kiện paste từ Clipboard
+        window.addEventListener('paste', (e) => {
+          const items = e.clipboardData?.items;
+          if (!items) return;
+
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              const file = items[i].getAsFile();
+              const reader = new FileReader();
+              const mime = items[i].type;
+
+              reader.onload = (event) => {
+                const dataUrl = event.target.result;
+                const base64 = dataUrl.split(',')[1];
+
+                // Xác định vị trí dán
+                let target = activePasteSlot;
+                if (pastedImages[0] === null && pastedImages[1] === null) {
+                  target = 0;
+                } else if (pastedImages[0] !== null && pastedImages[1] === null) {
+                  target = 1; // Tự động dán tiếp vào ô 2
+                } else if (pastedImages[target] !== null) {
+                  const other = target === 0 ? 1 : 0;
+                  if (pastedImages[other] === null) target = other;
+                }
+
+                pastedImages[target] = {
+                  data: base64,
+                  mimeType: mime,
+                  url: dataUrl
+                };
+
+                // Chuyển slot tiếp theo
+                activePasteSlot = target === 0 ? 1 : 0;
+
+                // Tự động chuyển qua tab dán ảnh
+                const pasteTabBtn = document.querySelector('[data-tab="tab-paste"]');
+                if (pasteTabBtn) pasteTabBtn.click();
+
+                updatePastedSlotsUI();
+              };
+              reader.readAsDataURL(file);
+              break;
+            }
+          }
+        });
+
+        // Nút OCR dán ảnh
+        document.getElementById('btnOcrPastedImg').addEventListener('click', async () => {
+          const imagesToSend = pastedImages.filter(Boolean);
+          if (imagesToSend.length === 0) return;
+
+          const btn = document.getElementById('btnOcrPastedImg');
+          const btnText = document.getElementById('btnOcrPastedText');
+          const originalText = btnText.textContent;
+          btn.disabled = true;
+          btnText.textContent = `Đang phân tích và tổng hợp ${imagesToSend.length} ảnh bằng AI...`;
+
+          try {
+            const extracted = await callGeminiOcrApi(imagesToSend);
+            currentGroups = extracted;
+            renderDynamicTable();
+            updateAppOutputs();
+            alert(`Đã nhận diện và tổng hợp thành công ${extracted.length} nhóm số liệu từ ${imagesToSend.length} ảnh!`);
+            document.querySelector('[data-tab="tab-direct"]').click();
+          } catch (err) {
+            alert('Lỗi nhận diện AI: ' + err.message);
+          } finally {
+            btn.disabled = false;
+            btnText.textContent = originalText;
+            updatePastedSlotsUI();
+          }
+        });
+
+        // 7. Xử lý Tab 3: Upload ảnh file
+        let uploadedBase64 = null;
+        let uploadedMime = 'image/jpeg';
+        const imageFileInput = document.getElementById('imageFileInput');
+
+        imageFileInput.addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          uploadedMime = file.type;
+          document.getElementById('uploadFileName').textContent = file.name;
+          const reader = new FileReader();
+
+          reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            uploadedBase64 = dataUrl.split(',')[1];
+            document.getElementById('uploadedImgElement').src = dataUrl;
+            document.getElementById('uploadPreviewContainer').classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
+        });
+
+        document.getElementById('btnRemoveUploadedImg').addEventListener('click', () => {
+          uploadedBase64 = null;
+          imageFileInput.value = '';
+          document.getElementById('uploadPreviewContainer').classList.add('hidden');
+        });
+
+        document.getElementById('btnOcrUploadedImg').addEventListener('click', async () => {
+          if (!uploadedBase64) return;
+          const btn = document.getElementById('btnOcrUploadedImg');
+          const originalText = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML = `<span class="animate-pulse">Đang dùng AI nhận diện...</span>`;
+
+          try {
+            const extracted = await callGeminiOcrApi(uploadedBase64, uploadedMime);
+            currentGroups = extracted;
+            renderDynamicTable();
+            updateAppOutputs();
+            alert(`Đã nhận diện thành công ${extracted.length} nhóm số liệu!`);
+            document.querySelector('[data-tab="tab-direct"]').click();
+          } catch (err) {
+            alert('Lỗi nhận diện AI: ' + err.message);
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          }
+        });
+
+        // 8. Xử lý Tab 4: Phân tích Copy & Paste text
+        document.getElementById('btnParseText').addEventListener('click', () => {
+          const text = document.getElementById('rawTextInput').value;
+          const parsed = parseTextToGroups(text);
+          if (parsed.length > 0) {
+            currentGroups = parsed;
+            renderDynamicTable();
+            updateAppOutputs();
+            alert(`Đã chuyển đổi thành công ${parsed.length} nhóm vào bảng tính!`);
+            document.querySelector('[data-tab="tab-direct"]').click();
+          } else {
+            alert('Không tìm thấy định dạng nhóm hợp lệ. Vui lòng nhập theo mẫu: [10; 20): 5');
+          }
+        });
+
+        // 9. Nút điều khiển:
+        // - Nút "Xuất đồ thị hình cột"
+        document.getElementById('btnActionHistogram').addEventListener('click', () => {
+          document.getElementById('btnTabChartHist').click();
+          document.getElementById('visualDisplayCard').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // - Nút "Mô phỏng tứ phân vị"
+        document.getElementById('btnActionBoxPlot').addEventListener('click', () => {
+          document.getElementById('btnTabChartBox').click();
+          document.getElementById('visualDisplayCard').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // - Nút "Xuất lời giải (MD)"
+        document.getElementById('btnActionSolutionMD').addEventListener('click', () => {
+          updateAppOutputs();
+          document.getElementById('solutionCard').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // 10. Chuyển đổi giữa Biểu đồ cột và Sơ đồ hộp
+        const btnTabHist = document.getElementById('btnTabChartHist');
+        const btnTabBox = document.getElementById('btnTabChartBox');
+        const histContainer = document.getElementById('histogramContainer');
+        const boxContainer = document.getElementById('boxplotContainer');
+
+        btnTabHist.addEventListener('click', () => {
+          btnTabHist.className = 'px-2.5 py-1 rounded-md font-semibold transition-all bg-white text-edu-800 shadow-sm';
+          btnTabBox.className = 'px-2.5 py-1 rounded-md font-semibold text-slate-600 hover:text-slate-900 transition-all';
+          histContainer.classList.remove('hidden');
+          boxContainer.classList.add('hidden');
+          document.getElementById('visualTitle').textContent = 'Biểu Đồ Hình Cột (Histogram Tần Số)';
+        });
+
+        btnTabBox.addEventListener('click', () => {
+          btnTabBox.className = 'px-2.5 py-1 rounded-md font-semibold transition-all bg-white text-edu-800 shadow-sm';
+          btnTabHist.className = 'px-2.5 py-1 rounded-md font-semibold text-slate-600 hover:text-slate-900 transition-all';
+          histContainer.classList.add('hidden');
+          boxContainer.classList.remove('hidden');
+          document.getElementById('visualTitle').textContent = 'Mô Phỏng Tứ Phân Vị & Ranh Giới Ngoại Lệ (Box Plot)';
+          // Vẽ lại canvas boxplot theo kích thước hiện thời
+          const stats = calculateGroupedStatistics(currentGroups);
+          renderBoxPlot(stats);
+        });
+
+        // 11. Các nút tiện ích lời giải: Copy MD, Tải MD, In ấn
+        document.getElementById('btnCopyMarkdown').addEventListener('click', () => {
+          if (!lastGeneratedMarkdown) return;
+          navigator.clipboard.writeText(lastGeneratedMarkdown).then(() => {
+            const btnText = document.getElementById('copyBtnText');
+            btnText.textContent = 'Đã sao chép!';
+            setTimeout(() => { btnText.textContent = 'Sao chép MD'; }, 2000);
+          }).catch(() => {
+            alert('Không thể sao chép tự động. Hãy thử lại.');
+          });
+        });
+
+        document.getElementById('btnDownloadMd').addEventListener('click', () => {
+          if (!lastGeneratedMarkdown) return;
+          const blob = new Blob([lastGeneratedMarkdown], { type: 'text/markdown;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Loi_giai_Thong_ke_Thay_Thang_${new Date().toISOString().slice(0, 10)}.md`;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('btnPrintSolution').addEventListener('click', () => {
+          window.print();
+        });
+
+        // Cập nhật lại canvas khi đổi kích thước màn hình
+        window.addEventListener('resize', () => {
+          if (!boxContainer.classList.contains('hidden')) {
+            const stats = calculateGroupedStatistics(currentGroups);
+            renderBoxPlot(stats);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
